@@ -6,13 +6,14 @@ from . import tools
 
 class Feeder_single(torch.utils.data.Dataset):
     """ Feeder for single inputs """
+
     def __init__(self, data_path, label_path, shear_amplitude=0.5, temperal_padding_ratio=6, mmap=True):
         self.data_path = data_path
         self.label_path = label_path
 
         self.shear_amplitude = shear_amplitude
         self.temperal_padding_ratio = temperal_padding_ratio
-       
+
         self.load_data(mmap)
 
     def load_data(self, mmap):
@@ -33,7 +34,7 @@ class Feeder_single(torch.utils.data.Dataset):
         # get data
         data_numpy = np.array(self.data[index])
         label = self.label[index]
-        
+
         # processing
         data = self._aug(data_numpy)
         return data, label
@@ -44,16 +45,20 @@ class Feeder_single(torch.utils.data.Dataset):
 
         if self.shear_amplitude > 0:
             data_numpy = tools.shear(data_numpy, self.shear_amplitude)
-        
+
         return data_numpy
 
 
 class Feeder_triple(torch.utils.data.Dataset):
     """ Feeder for triple inputs """
-    def __init__(self, data_path, label_path, shear_amplitude=0.5, temperal_padding_ratio=6, mmap=True, aug_method='12345'):
+
+    def __init__(self, data_path, label_path, shear_amplitude=0.5, temperal_padding_ratio=6, mmap=True,
+                 aug_method='12345', normal_aug_prob=0.5, extreme_aug_prob=0.8):
         self.data_path = data_path
         self.label_path = label_path
         self.aug_method = aug_method
+        self.normal_aug_prob = normal_aug_prob
+        self.extreme_aug_prob = extreme_aug_prob
 
         self.shear_amplitude = shear_amplitude
         self.temperal_padding_ratio = temperal_padding_ratio
@@ -85,33 +90,36 @@ class Feeder_triple(torch.utils.data.Dataset):
         data3 = self._aug(data_numpy)
         return [data1, data2, data3], label
 
-    def _aug(self, data_numpy):
-        if self.temperal_padding_ratio > 0:
-            data_numpy = tools.temperal_crop(data_numpy, self.temperal_padding_ratio)
+    def _view_aug(self, data_numpy, aug_prob):
+        aug_fns = []
 
+        if self.temperal_padding_ratio > 0:
+            aug_fns.append(lambda x: tools.temperal_crop(x, self.temperal_padding_ratio))
         if self.shear_amplitude > 0:
-            data_numpy = tools.shear(data_numpy, self.shear_amplitude)
+            aug_fns.append(lambda x: tools.shear(x, self.shear_amplitude))
+
+        if '1' in self.aug_method:
+            aug_fns.append(lambda x: tools.random_spatial_flip(x, p=1.0))
+        if '2' in self.aug_method:
+            aug_fns.append(lambda x: tools.random_rotate(x))
+        if '3' in self.aug_method:
+            aug_fns.append(lambda x: tools.gaus_noise(x, p=1.0))
+        if '4' in self.aug_method:
+            aug_fns.append(lambda x: tools.gaus_filter(x, p=1.0))
+        if '5' in self.aug_method:
+            aug_fns.append(lambda x: tools.axis_mask(x, p=1.0))
+
+        for aug in aug_fns:
+            if random.random() < aug_prob:
+                data_numpy = aug(data_numpy)
+
         return data_numpy
+
+    def _aug(self, data_numpy):
+        return self._view_aug(data_numpy, self.normal_aug_prob)
 
     def _strong_aug(self, data_numpy):
-        if self.temperal_padding_ratio > 0:
-            data_numpy = tools.temperal_crop(data_numpy, self.temperal_padding_ratio)
-        if self.shear_amplitude > 0:
-            data_numpy = tools.shear(data_numpy, self.shear_amplitude)
-        if '1' in self.aug_method:
-            data_numpy = tools.random_spatial_flip(data_numpy)
-        if '2' in self.aug_method:
-            data_numpy = tools.random_rotate(data_numpy)
-        if '3' in self.aug_method:
-            data_numpy = tools.gaus_noise(data_numpy)
-        if '4' in self.aug_method:
-            data_numpy = tools.gaus_filter(data_numpy)
-        if '5' in self.aug_method:
-            data_numpy = tools.axis_mask(data_numpy)
-        if '6' in self.aug_method:
-            data_numpy = tools.random_time_flip(data_numpy)
-        
-        return data_numpy
+        return self._view_aug(data_numpy, self.extreme_aug_prob)
 
 
 class Feeder_dual(torch.utils.data.Dataset):
@@ -124,7 +132,7 @@ class Feeder_dual(torch.utils.data.Dataset):
 
         self.shear_amplitude = shear_amplitude
         self.temperal_padding_ratio = temperal_padding_ratio
-       
+
         self.load_data(mmap)
 
     def load_data(self, mmap):
@@ -145,7 +153,7 @@ class Feeder_dual(torch.utils.data.Dataset):
         # get data
         data_numpy = np.array(self.data[index])
         label = self.label[index]
-        
+
         # processing
         data1 = self._aug(data_numpy)
         data2 = self._aug(data_numpy)
@@ -173,7 +181,7 @@ class Feeder_dual(torch.utils.data.Dataset):
             data_numpy = tools.axis_mask(data_numpy)
         if '6' in self.aug_method:
             data_numpy = tools.random_time_flip(data_numpy)
-        
+
         return data_numpy
 
 
@@ -187,7 +195,7 @@ class Feeder_dual_ea(torch.utils.data.Dataset):
 
         self.shear_amplitude = shear_amplitude
         self.temperal_padding_ratio = temperal_padding_ratio
-       
+
         self.load_data(mmap)
 
     def load_data(self, mmap):
@@ -208,7 +216,7 @@ class Feeder_dual_ea(torch.utils.data.Dataset):
         # get data
         data_numpy = np.array(self.data[index])
         label = self.label[index]
-        
+
         # processing
         data1 = self._ea_aug(data_numpy)
         data2 = self._ea_aug(data_numpy)
@@ -229,13 +237,15 @@ class Feeder_dual_ea(torch.utils.data.Dataset):
             data_numpy = tools.gaus_filter(data_numpy)
         if '5' in self.aug_method:
             data_numpy = tools.axis_mask(data_numpy)
-        
+
         return data_numpy
 
 
 class Feeder_semi(torch.utils.data.Dataset):
     """ Feeder for single inputs """
-    def __init__(self, data_path, label_path, label_percent=0.1, shear_amplitude=0.5, temperal_padding_ratio=6, mmap=True):
+
+    def __init__(self, data_path, label_path, label_percent=0.1, shear_amplitude=0.5, temperal_padding_ratio=6,
+                 mmap=True):
         self.data_path = data_path
         self.label_path = label_path
 

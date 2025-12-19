@@ -1,10 +1,10 @@
-work_dir: /data1/gty/2022_work_dir/AimCLR_v2_3views/ntu60_cv/top-4-20/pretext
+work_dir: ../data/aimclr/work_dir/AimCLR_v2_3views/ntu60_cv/top-4-20/pretext
 
 # feeder
 train_feeder: feeder.ntu_feeder.Feeder_triple
 train_feeder_args:
-  data_path: /data1/gty/action_dataset/ntu60_frame50/xview/train_position.npy
-  label_path: /data1/gty/action_dataset/ntu60_frame50/xview/train_label.pkl
+  data_path: ../data/aimclr/ntu60_frame50/xview/train_position.npy
+  label_path: ../data/aimclr/ntu60/xview/train_label.pkl
   shear_amplitude: 0.5
   temperal_padding_ratio: 6
   mmap: True

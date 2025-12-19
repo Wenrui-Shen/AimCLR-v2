@@ -101,10 +101,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='NTU-RGB-D Data Converter.')
     parser.add_argument(
-        '--data_path', default='../data/nturgbd_raw/nturgb+d_skeletons/')
+        '--data_path', default='/data/gty/action_dataset/original/nturgb+d_skeletons/')
     parser.add_argument(
         '--ignored_sample_path',
-        default='../data/nturgbd_raw/samples_with_missing_skeletons.txt')
+        default='/data/gty/action_dataset/original/NTU_RGBD_samples_with_missing_skeletons.txt')
     parser.add_argument('--out_folder', default='../data/aimclr/ntu60')
 
     benchmark = ['xsub', 'xview']

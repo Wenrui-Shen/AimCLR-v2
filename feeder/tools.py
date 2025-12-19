@@ -110,9 +110,11 @@ def gaus_noise(data_numpy, mean= 0, std=0.01, p=0.5):
         return data_numpy
 
 
-def gaus_filter(data_numpy):
-    g = GaussianBlurConv(3)
-    return g(data_numpy)
+def gaus_filter(data_numpy, p=0.5):
+    if random.random() < p:
+        g = GaussianBlurConv(3)
+        return g(data_numpy)
+    return data_numpy
 
 
 class GaussianBlurConv(nn.Module):
@@ -133,12 +135,10 @@ class GaussianBlurConv(nn.Module):
         kernel = kernel.repeat(self.channels, 1, 1, 1) # (3,1,1,5)
         self.weight = nn.Parameter(data=kernel, requires_grad=False)
 
-        prob = np.random.random_sample()
         x = torch.from_numpy(x)
-        if prob < 0.5:
-            x = x.permute(3,0,2,1) # M,C,V,T
-            x = F.conv2d(x, self.weight, padding=(0, int((self.kernel - 1) / 2 )),   groups=self.channels)
-            x = x.permute(1,-1,-2, 0) #C,T,V,M
+        x = x.permute(3,0,2,1) # M,C,V,T
+        x = F.conv2d(x, self.weight, padding=(0, int((self.kernel - 1) / 2 )),   groups=self.channels)
+        x = x.permute(1,-1,-2, 0) #C,T,V,M
 
         return x.numpy()
 

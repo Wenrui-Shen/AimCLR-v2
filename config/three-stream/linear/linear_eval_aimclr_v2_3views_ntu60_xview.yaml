@@ -1,20 +1,20 @@
-work_dir: /data1/gty/2022_work_dir/AimCLR_v2_3views/ntu60_cv/top-4-20/linear_eval_400
+work_dir: ../data/aimclr/work_dir/AimCLR_v2_3views/ntu60_cv/top-4-20/linear_eval_400
 
-weights: /data1/gty/2022_work_dir/AimCLR_v2_3views/ntu60_cv/top-4-20/pretext/epoch400_model.pt
+weights: ../data/aimclr/work_dir/AimCLR_v2_3views/ntu60_cv/top-4-20/pretext/epoch400_model.pt
 ignore_weights: [encoder_q.fc, encoder_q_motion.fc, encoder_q_bone.fc, encoder_k, encoder_k_motion, encoder_k_bone, queue, queue_motion, queue_bone]
 
 # feeder
 train_feeder: feeder.ntu_feeder.Feeder_single
 train_feeder_args:
-  data_path: /data1/gty/action_dataset/ntu60_frame50/xview/train_position.npy
-  label_path: /data1/gty/action_dataset/ntu60_frame50/xview/train_label.pkl
+  data_path: ../data/aimclr/ntu60_frame50/xview/train_position.npy
+  label_path: ../data/aimclr/ntu60/xview/train_label.pkl
   shear_amplitude: -1
   temperal_padding_ratio: -1
   mmap: True
 test_feeder: feeder.ntu_feeder.Feeder_single
 test_feeder_args:
-  data_path: /data1/gty/action_dataset/ntu60_frame50/xview/val_position.npy
-  label_path: /data1/gty/action_dataset/ntu60_frame50/xview/val_label.pkl
+  data_path: ../data/aimclr/ntu60_frame50/xview/val_position.npy
+  label_path: ../data/aimclr/ntu60/xview/val_label.pkl
   shear_amplitude: -1
   temperal_padding_ratio: -1
   mmap: True

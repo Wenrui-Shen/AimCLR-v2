@@ -88,8 +88,8 @@ def gendata(dataset_path, out_path, benchmark, part='eval'):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='NTU-RGB-D Data Converter.')
-    parser.add_argument('--dataset_path', default='/data/gty/action_dataset/ntu60')
-    parser.add_argument('--out_folder', default='/data/gty/action_dataset/ntu60_frame50')
+    parser.add_argument('--dataset_path', default='../data/aimclr/ntu60')
+    parser.add_argument('--out_folder', default='../data/aimclr/ntu60_frame50')
 
     benchmark = ['xsub', 'xview']
     part = ['train', 'val']
